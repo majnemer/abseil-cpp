@@ -176,5 +176,9 @@ INSTANTIATE_TYPED_TEST_SUITE_P(Win32, WaiterTest,
 INSTANTIATE_TYPED_TEST_SUITE_P(Stdcpp, WaiterTest,
                                absl::synchronization_internal::StdcppWaiter);
 #endif
+#ifdef ABSL_INTERNAL_HAVE_DARWIN_WAITER
+INSTANTIATE_TYPED_TEST_SUITE_P(Darwin, WaiterTest,
+                               absl::synchronization_internal::DarwinWaiter);
+#endif
 
 }  // namespace

@@ -17,6 +17,7 @@
 #define ABSL_SYNCHRONIZATION_INTERNAL_WAITER_H_
 
 #include "absl/base/config.h"
+#include "absl/synchronization/internal/darwin_waiter.h"
 #include "absl/synchronization/internal/futex_waiter.h"
 #include "absl/synchronization/internal/pthread_waiter.h"
 #include "absl/synchronization/internal/sem_waiter.h"
@@ -29,6 +30,7 @@
 #define ABSL_WAITER_MODE_CONDVAR 2
 #define ABSL_WAITER_MODE_WIN32 3
 #define ABSL_WAITER_MODE_STDCPP 4
+#define ABSL_WAITER_MODE_DARWIN 5
 
 #if defined(ABSL_FORCE_WAITER_MODE)
 #define ABSL_WAITER_MODE ABSL_FORCE_WAITER_MODE
@@ -36,6 +38,8 @@
 #define ABSL_WAITER_MODE ABSL_WAITER_MODE_WIN32
 #elif defined(ABSL_INTERNAL_HAVE_FUTEX_WAITER)
 #define ABSL_WAITER_MODE ABSL_WAITER_MODE_FUTEX
+#elif defined(ABSL_INTERNAL_HAVE_DARWIN_WAITER)
+#define ABSL_WAITER_MODE ABSL_WAITER_MODE_DARWIN
 #elif defined(ABSL_INTERNAL_HAVE_SEM_WAITER)
 #define ABSL_WAITER_MODE ABSL_WAITER_MODE_SEM
 #elif defined(ABSL_INTERNAL_HAVE_PTHREAD_WAITER)
@@ -60,6 +64,8 @@ using Waiter = PthreadWaiter;
 using Waiter = Win32Waiter;
 #elif ABSL_WAITER_MODE == ABSL_WAITER_MODE_STDCPP
 using Waiter = StdcppWaiter;
+#elif ABSL_WAITER_MODE == ABSL_WAITER_MODE_DARWIN
+using Waiter = DarwinWaiter;
 #endif
 
 }  // namespace synchronization_internal

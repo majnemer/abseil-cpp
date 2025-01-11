@@ -274,7 +274,6 @@ static_assert(ABSL_INTERNAL_INLINE_NAMESPACE_STR[0] != 'h' ||
 #define ABSL_HAVE_STD_IS_TRIVIALLY_COPYABLE 1
 #endif
 
-
 // ABSL_HAVE_THREAD_LOCAL
 //
 // DEPRECATED - `thread_local` is available on all supported platforms.
@@ -414,6 +413,25 @@ static_assert(ABSL_INTERNAL_INLINE_NAMESPACE_STR[0] != 'h' ||
 #elif defined(__linux__) || defined(__ros__) || defined(__native_client__) || \
     defined(__VXWORKS__)
 #define ABSL_HAVE_SCHED_YIELD 1
+#endif
+
+// ABSL_HAVE_OS_SYNC_ADDRESS
+//
+// Checks whether os_sync_wait_on_address is available.
+#ifdef ABSL_HAVE_OS_SYNC_ADDRESS
+#error ABSL_HAVE_OS_SYNC_ADDRESS cannot be directly set
+#elif defined(__APPLE__) && defined(__has_include) &&              \
+    ((defined(__ENVIRONMENT_MAC_OS_X_VERSION_MIN_REQUIRED__) &&    \
+      __ENVIRONMENT_MAC_OS_X_VERSION_MIN_REQUIRED__ >= 140400) ||  \
+     (defined(__ENVIRONMENT_IPHONE_OS_VERSION_MIN_REQUIRED__) &&   \
+      __ENVIRONMENT_IPHONE_OS_VERSION_MIN_REQUIRED__ >= 170400) || \
+     (defined(__ENVIRONMENT_WATCH_OS_VERSION_MIN_REQUIRED__) &&    \
+      __ENVIRONMENT_WATCH_OS_VERSION_MIN_REQUIRED__ >= 100400) ||  \
+     (defined(__ENVIRONMENT_TV_OS_VERSION_MIN_REQUIRED__) &&       \
+      __ENVIRONMENT_TV_OS_VERSION_MIN_REQUIRED__ >= 170400))
+#if __has_include(<os/os_sync_wait_on_address.h>)
+#define ABSL_HAVE_OS_SYNC_ADDRESS 1
+#endif
 #endif
 
 // ABSL_HAVE_SEMAPHORE_H

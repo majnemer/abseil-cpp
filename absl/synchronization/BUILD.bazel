@@ -95,6 +95,7 @@ cc_library(
     srcs = [
         "barrier.cc",
         "blocking_counter.cc",
+        "internal/darwin_waiter.cc"
         "internal/create_thread_identity.cc",
         "internal/futex_waiter.cc",
         "internal/per_thread_sem.cc",
@@ -110,6 +111,7 @@ cc_library(
         "barrier.h",
         "blocking_counter.h",
         "internal/create_thread_identity.h",
+        "internal/darwin_waiter.h"
         "internal/futex.h",
         "internal/futex_waiter.h",
         "internal/per_thread_sem.h",
