@@ -24,6 +24,14 @@
 #include <sys/auxv.h>
 #endif
 
+#if defined(__aarch64__) && defined(__APPLE__)
+#if defined(__has_include) && __has_include(<arm/cpu_capabilities_public.h>)
+#include <arm/cpu_capabilities_public.h>
+#endif
+#include <sys/sysctl.h>
+#include <sys/types.h>
+#endif
+
 #if defined(_WIN32) || defined(_WIN64)
 #include <intrin.h>
 #endif
@@ -275,6 +283,63 @@ bool SupportsArmCRC32PMULL() {
 #else
   return false;
 #endif
+}
+
+#elif defined(__aarch64__) && defined(__APPLE__)
+
+CpuType GetCpuType() { return CpuType::kUnknown; }
+
+template <typename T>
+bool ReadSysctlByName(const char* name, T* val) {
+  size_t val_size = sizeof(T);
+  int ret = sysctlbyname(name, val, &val_size, nullptr, 0);
+  if (ret == -1) {
+    *val = 0;
+    return false;
+  }
+  return true;
+}
+
+bool SupportsArmCRC32PMULL() {
+#if ABSL_HAVE_BUILTIN(__builtin_cpu_supports)
+  // Support for the AES and PMULL instructions are tied together:
+  // "When Cryptographic extensions are implemented and enabled then AESE, AESD,
+  // AESMC, and AESIMC instructions are implemented and also PMULL/PMULL2
+  // instructions operating on 64-bit data quantities."
+  //
+  // __builtin_cpu_supports expects users of PMULL to check for AES.
+  //
+  // https://developer.arm.com/documentation/101800/0201/AArch64-registers/AArch64-Identification-register-summary/ID-AA64ISAR0-EL1--AArch64-Instruction-Set-Attribute-Register-0
+  return __builtin_cpu_supports("crc+aes");
+#endif
+
+  // Newer XNU kernels support querying all capabilities in a single
+  // sysctlbyname.
+#if defined(CAP_BIT_CRC32) && defined(CAP_BIT_FEAT_PMULL)
+  static uint64_t caps;
+  static bool caps_ret = ReadSysctlByName("hw.optional.arm.caps", &caps);
+  if (caps_ret) {
+    constexpr uint64_t kCrc32AndPmullCaps =
+        (uint64_t{1} << CAP_BIT_CRC32) | (uint64_t{1} << CAP_BIT_FEAT_PMULL);
+    return (caps & kCrc32AndPmullCaps) == kCrc32AndPmullCaps;
+  }
+#endif
+
+  // https://developer.apple.com/documentation/kernel/1387446-sysctlbyname/determining_instruction_set_characteristics#3915619
+  static int armv8_crc32;
+  static bool armv8_crc32_ret =
+      ReadSysctlByName<int>("hw.optional.armv8_crc32", &armv8_crc32);
+  if (!armv8_crc32_ret || !armv8_crc32) {
+    return false;
+  }
+  // https://developer.apple.com/documentation/kernel/1387446-sysctlbyname/determining_instruction_set_characteristics#3918855
+  static int feat_pmull;
+  static bool feat_pmull_ret =
+      ReadSysctlByName<int>("hw.optional.arm.FEAT_PMULL", &feat_pmull);
+  if (!feat_pmull_ret || !feat_pmull) {
+    return false;
+  }
+  return true;
 }
 
 #else
