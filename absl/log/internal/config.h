@@ -22,7 +22,7 @@
 
 #include "absl/base/config.h"
 
-#ifdef _WIN32
+#if defined(_WIN32) || defined(__APPLE__)
 #include <cstdint>
 #else
 #include <sys/types.h>
@@ -34,6 +34,11 @@ namespace log_internal {
 
 #ifdef _WIN32
 using Tid = uint32_t;
+#elif defined(__APPLE__)
+// On Darwin, process id is a BSD concept while thread id is a Mach concept.
+// A thread id which is passed to user space is *not* a candidate to be reused.
+// XNU addresses this by using a 64-bit type for its thread id.
+using Tid = uint64_t;
 #else
 using Tid = pid_t;
 #endif

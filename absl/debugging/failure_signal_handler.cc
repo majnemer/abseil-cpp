@@ -326,7 +326,7 @@ static void ImmediateAbortSignalHandler(int) { RaiseToDefaultHandler(SIGABRT); }
 #endif
 
 // absl::base_internal::GetTID() returns pid_t on most platforms, but
-// returns absl::base_internal::pid_t on Windows.
+// returns absl::base_internal::pid_t on Windows and Darwin.
 using GetTidType = decltype(absl::base_internal::GetTID());
 ABSL_CONST_INIT static std::atomic<GetTidType> failed_tid(0);
 

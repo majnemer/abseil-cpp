@@ -24,7 +24,7 @@
 #ifndef ABSL_BASE_INTERNAL_SYSINFO_H_
 #define ABSL_BASE_INTERNAL_SYSINFO_H_
 
-#ifndef _WIN32
+#if !defined(_WIN32) && !defined(__APPLE__)
 #include <sys/types.h>
 #endif
 
@@ -57,6 +57,11 @@ int NumCPUs();
 // return types of GetProcessId() and GetThreadId() are both DWORD, an unsigned
 // 32-bit type.
 using pid_t = uint32_t;
+#elif defined(__APPLE__)
+// On Darwin, process id is a BSD concept while thread id is a Mach concept.
+// A thread id which is passed to user space is *not* a candidate to be reused.
+// XNU addresses this by using a 64-bit type for its thread id.
+using pid_t = uint64_t;
 #endif
 pid_t GetTID();
 

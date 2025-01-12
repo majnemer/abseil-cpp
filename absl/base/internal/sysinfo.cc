@@ -441,7 +441,7 @@ pid_t GetTID() {
   // thread is invalid or the pointer-to-tid is null, so we needn't worry about
   // it.
   pthread_threadid_np(nullptr, &tid);
-  return static_cast<pid_t>(tid);
+  return tid;
 }
 
 #elif defined(__FreeBSD__)
