@@ -133,6 +133,7 @@ absl_cc_library(
     "internal/spinlock_wait.h"
   SRCS
     "internal/spinlock_akaros.inc"
+    "internal/spinlock_darwin.inc"
     "internal/spinlock_linux.inc"
     "internal/spinlock_posix.inc"
     "internal/spinlock_wait.cc"

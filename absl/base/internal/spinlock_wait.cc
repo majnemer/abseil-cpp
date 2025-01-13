@@ -27,6 +27,8 @@
 #include "absl/base/internal/spinlock_linux.inc"
 #elif defined(__akaros__)
 #include "absl/base/internal/spinlock_akaros.inc"
+#elif defined(ABSL_HAVE_OS_SYNC_ADDRESS)
+#include "absl/base/internal/spinlock_darwin.inc"
 #else
 #include "absl/base/internal/spinlock_posix.inc"
 #endif
