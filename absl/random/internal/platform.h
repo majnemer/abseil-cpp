@@ -134,7 +134,14 @@
 // accelerated Randen implementation.
 #define ABSL_RANDOM_INTERNAL_AES_DISPATCH 0
 
-#if defined(ABSL_ARCH_X86_64)
+// iOS does not support dispatch, even on x86, since applications
+// should be bundled as fat binaries, with a different build tailored for
+// each specific supported platform/architecture.
+#if (defined(TARGET_OS_IPHONE) && TARGET_OS_IPHONE) || \
+    (defined(TARGET_OS_IPHONE_SIMULATOR) && TARGET_OS_IPHONE_SIMULATOR)
+#undef ABSL_RANDOM_INTERNAL_AES_DISPATCH
+#define ABSL_RANDOM_INTERNAL_AES_DISPATCH 0
+#elif defined(ABSL_ARCH_X86_64)
 // Dispatch is available on x86_64
 #undef ABSL_RANDOM_INTERNAL_AES_DISPATCH
 #define ABSL_RANDOM_INTERNAL_AES_DISPATCH 1
@@ -142,8 +149,8 @@
 // Or when running linux PPC
 #undef ABSL_RANDOM_INTERNAL_AES_DISPATCH
 #define ABSL_RANDOM_INTERNAL_AES_DISPATCH 1
-#elif defined(__linux__) && defined(ABSL_ARCH_AARCH64)
-// Or when running linux AArch64
+#elif (defined(__linux__) || defined(__APPLE__)) && defined(ABSL_ARCH_AARCH64)
+// Or when running linux or macOS AArch64
 #undef ABSL_RANDOM_INTERNAL_AES_DISPATCH
 #define ABSL_RANDOM_INTERNAL_AES_DISPATCH 1
 #elif defined(__linux__) && defined(ABSL_ARCH_ARM) && (__ARM_ARCH >= 8)
@@ -155,15 +162,6 @@
 
 // NaCl does not allow dispatch.
 #if defined(__native_client__)
-#undef ABSL_RANDOM_INTERNAL_AES_DISPATCH
-#define ABSL_RANDOM_INTERNAL_AES_DISPATCH 0
-#endif
-
-// iOS does not support dispatch, even on x86, since applications
-// should be bundled as fat binaries, with a different build tailored for
-// each specific supported platform/architecture.
-#if (defined(TARGET_OS_IPHONE) && TARGET_OS_IPHONE) || \
-    (defined(TARGET_OS_IPHONE_SIMULATOR) && TARGET_OS_IPHONE_SIMULATOR)
 #undef ABSL_RANDOM_INTERNAL_AES_DISPATCH
 #define ABSL_RANDOM_INTERNAL_AES_DISPATCH 0
 #endif
